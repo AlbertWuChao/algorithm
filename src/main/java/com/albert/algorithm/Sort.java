@@ -7,35 +7,34 @@ public class Sort {
 	/**
 	 * 递归快排
 	 */
-	public static void kuaipai_digui(int[] array) {
+	public static void quickSortRecursive(int[] array) {
 		ttt = 0;
-		sort.kuaipai_digui(array, 0, array.length - 1);
+		sort.quickSortRecursive(array, 0, array.length - 1);
 		System.out.println(ttt);
 	}
 	
 	static int ttt = 0;
 	
-	private void kuaipai_digui(int[] array, int low, int high) {
-		int middle = kuaipai_partition(array, low, high);
+	private void quickSortRecursive(int[] array, int low, int high) {
+		int middle = quickSortPartition(array, low, high);
 		if (middle - 1 > low) {
 			if (middle - 1 - low < 7) {
-				maopao(array, low, middle - 1);
+				bubbleSort(array, low, middle - 1);
 			} else {
-				kuaipai_digui(array, low, middle - 1);
+				quickSortRecursive(array, low, middle - 1);
 			}
 		}
 		if (middle + 1 < high) {
 			if (high - 1 - middle < 7) {
-				maopao(array, middle + 1, high);
+				bubbleSort(array, middle + 1, high);
 			} else {
-				kuaipai_digui(array, middle + 1, high);
+				quickSortRecursive(array, middle + 1, high);
 			}
 		}
 	}
 	
-	private int kuaipai_partition(int[] array, int low, int high) {
+	private int quickSortPartition(int[] array, int low, int high) {
 		ttt++;
-//		System.out.println(ttt);
 		for(;low < high;) {
 			// 从high向low找到第一个比low小的数 交换
 			for (;low < high && array[high] >= array[low];){
@@ -61,18 +60,45 @@ public class Sort {
 	 * 使用循环做的快排
 	 * @param array
 	 */
-	public static void kuaipai_xunhuan(int[] array) {
-		sort.kuaipai_xunhuan0(array, 0, array.length - 1);
+	public static void quickSortLoop(int[] array) {
+		ttt = 0;
+		sort.quickSortLoop0(array, 0, array.length - 1);
+		System.out.println(ttt);
 	}
 	
-	private void kuaipai_xunhuan0(int[] array, int low, int high) {
-		int[] task = new int[(log2(array.length) + 1) * 2];
-		int position = 0;
+	private void quickSortLoop0(int[] array, int low, int high) {
+		int[] task = new int[(log2(array.length) + 1) * 2 + 2];
 		// TODO 使用栈存放任务信息  position指向 (low, high) 中的high
 		// 压栈时  优先放入 任务量多的任务 (high - low 数量)
-		
+		task[0] = low;
+		task[1] = high;
+		int position = 1;
+		int middle = 0;
+		for (;position > 0;) {
+			low = task[position - 1];
+			high = task[position];
+			position -= 2;
+			// 如果元素数量大于7 则使用快排
+			// 元素数量7个以内 则使用冒泡
+			if (high - low > 7) {
+				middle = quickSortPartition(array, low, high);
+				if ((middle - low) >= (high - middle)) {
+//					task[position + 1] = low;
+					task[position + 2] = middle - 1;
+					task[position + 3] = middle + 1;
+					task[position + 4] = high;
+				} else {
+					task[position + 1] = middle + 1;
+//					task[position + 2] = high;
+					task[position + 3] = low;
+					task[position + 4] = middle - 1;
+				}
+				position += 4;
+			} else {
+				bubbleSort(array, low, high);
+			}
+		}
 
-		int middle = kuaipai_partition(array, low, high);
 		
 	}
 	
@@ -86,11 +112,11 @@ public class Sort {
 	
 	
 	
-	public static void maopao(int[] array) {
-		sort.maopao(array, 0, array.length - 1);
+	public static void bubbleSort(int[] array) {
+		sort.bubbleSort(array, 0, array.length - 1);
 	}
 	
-	private void maopao(int[] array, int low, int high) {
+	private void bubbleSort(int[] array, int low, int high) {
 		for (int i = low; i < high; i++) {
 			for (int j = high; j > i; j--) {
 				if (array[j] < array[j - 1]) {
