@@ -70,34 +70,61 @@ public class SortTest {
 	}
 	
 	
-	
-	
 	@Test
-	@Ignore
-	public void test0() {
-		for (int ii = 0; ii < 10; ii++) {
-			int[] array = new int[1000];
-			for (int i = 0; i < 1000; i++) {
-				array[i] = i;
-			}
-			Sort.quickSortRecursive(array);
+	public void testInsertSort() {
+		int base = 5;
+		int[] array = new int[base];
+		for (int ii = 0; ii < 10000; ii++) {
 			Random random = new Random();
-			int base = 1000;
 			for(int i = 0; i < base; i++) {
 				int a = random.nextInt(2 * base);
 				array[i] = a;
 			}
-			Sort.quickSortRecursive(array);
+			int[] array2 = new int[base];
+			System.arraycopy(array, 0, array2, 0, base);
+//			System.out.println(Arrays.toString(array));
+			long t1 = System.currentTimeMillis();
+			Sort.insertSort(array);
+			long t2 = System.currentTimeMillis();
+//			System.out.println(Arrays.toString(array));
+//			System.out.println("Sort insert:[" + base + "] " + (t2 - t1) + " Sorted: " + checkSorted(array));
+			if (!checkSorted(array)) {
+				System.out.println("Source: " + Arrays.toString(array2));
+				System.out.println("Target: " + Arrays.toString(array));
+			}
 		}
 	}
 	
+	
 	@Test
-	@Ignore
+//	@Ignore
+	public void test0() {
+		int base = 3000;
+		int[] array = new int[base];
+		for(int i = 0; i < base; i++) {
+			array[i] = i % 30;
+		}
+		System.out.println(Arrays.toString(array));
+		long t1 = System.currentTimeMillis();
+		DualPivotQuicksort.sort(array);
+		System.out.println("kuaipai_xunhuan:[" + base + "] " + (System.currentTimeMillis() - t1));
+		System.out.println(Arrays.toString(array));
+	}
+	
+	@Test
+//	@Ignore
 	public void test1() {
-		long l = 0x4000000000000000L;
-		long l2 = 4;
-		System.out.println(log2(Long.MAX_VALUE));
-		System.out.println(log2(l));
+		long t1 = System.currentTimeMillis();
+		for (long i = 0; i++ < 10000000000L;) {
+			int ii = Integer.MAX_VALUE / 7;
+		}
+		System.out.println(System.currentTimeMillis() - t1);
+		t1 = System.currentTimeMillis();
+		for (long i = 0; i++ < 10000000000L;) {
+			int ii = Integer.MAX_VALUE >> 3 + Integer.MAX_VALUE >> 6 + 1;
+		}
+		System.out.println(System.currentTimeMillis() - t1);
+
 	}
 	
 	private int log2(long a) {
@@ -107,5 +134,15 @@ public class SortTest {
 		}
 		return log;
 	}
+	
+	private boolean checkSorted(int[] array) {
+		for (int i = 0; i < array.length - 1; i++) {
+			if (array[i] > array[i+1]) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	
 }

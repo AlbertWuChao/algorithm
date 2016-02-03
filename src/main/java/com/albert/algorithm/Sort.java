@@ -1,5 +1,9 @@
 package com.albert.algorithm;
 
+import java.util.Arrays;
+
+import org.junit.Test;
+
 public class Sort {
 
 	public static Sort sort = new Sort();
@@ -40,12 +44,36 @@ public class Sort {
 			for (;low < high && array[high] >= array[low];){
 				high--;
 			}
-			exchange(array, low, high);
+			int temp = array[low];
+			array[low] = array[high];
+			array[high] = temp;
 			// 从 low 向 high 找到第一个比 high 大的  交换
 			for (;low < high && array[low] <= array[high];) {
 				low++;
 			}
-			exchange(array, low, high);
+			temp = array[low];
+			array[low] = array[high];
+			array[high] = temp;
+		}
+		return low;
+	}
+
+	private int quickSortPartition0(int[] array, int low, int high) {
+		for(;low < high;) {
+			// 从high向low找到第一个比low小的数 交换
+			for (;low < high && array[high] >= array[low];){
+				high--;
+			}
+			int temp = array[low];
+			array[low] = array[high];
+			array[high] = temp;
+			// 从 low 向 high 找到第一个比 high 大的  交换
+			for (;low < high && array[low] <= array[high];) {
+				low++;
+			}
+			temp = array[low];
+			array[low] = array[high];
+			array[high] = temp;
 		}
 		return low;
 	}
@@ -98,7 +126,6 @@ public class Sort {
 				bubbleSort(array, low, high);
 			}
 		}
-
 		
 	}
 	
@@ -110,21 +137,148 @@ public class Sort {
 		return log;
 	}
 	
-	
-	
 	public static void bubbleSort(int[] array) {
 		sort.bubbleSort(array, 0, array.length - 1);
 	}
-	
+
 	private void bubbleSort(int[] array, int low, int high) {
 		for (int i = low; i < high; i++) {
 			for (int j = high; j > i; j--) {
 				if (array[j] < array[j - 1]) {
-					exchange(array, j , j - 1);
+					int temp = array[j];
+					array[j] = array[j - 1];
+					array[j - 1] = temp;
 				}
 			}
 		}
 	}
+
+	public static void insertSort(int[] array) {
+		sort.insertSort0(array, 0, array.length - 1);
+	}
 	
+	private void insertSort0(int[] array, int left, int right) {
+		/*
+		 	1 2 3 4 5 6 7 8 9     2   3   4   3   2
+		 	-----------           ---------   - 
+		 	already sort    point tag         i 
+		 
+		 */
+		int tag = left;
+		int point = left;
+		
+		for (int i = left; i < right;) {
+			tag = i;
+			point = left;
+			/*
+			 * 循环结束时  i 的位置在point处
+			 */
+			if (array[i] <= array[i + 1]) {
+				while (++i < right && array[i - 1] <= array[i]);
+			} else if (array[i] > array[i + 1]) {
+				while (++i < right && array[i - 1] > array[i]);
+				for (int lo = tag, ri = i - 1; lo < ri;) {
+					int temp = array[lo];
+					array[lo] = array[ri];
+					array[ri] = temp;
+					lo++;
+					ri--;
+					
+				}
+			}
+			if (tag != left && array[tag] < array[tag - 1]) {
+				for (; tag < i; tag++) {
+					int t = array[tag];
+					// 找到第一个比t大的下标
+					for(; point < tag && array[point] < t; point++);
+//					point = point;
+					// [bigger ~ tag-1] 整套右移一位
+					for (int tag1 = tag; tag1 > point; tag1--) {
+						array[tag1] = array[tag1 - 1];
+					}
+					array[point] = t;
+				}
+			}
+		}
+		point = left;
+		// 处理最右边的字符  right
+		int t = array[right];
+		// 找到第一个比t大的下标
+		for(; point < right && array[point] < t; point++);
+//		point = point;
+		// [bigger ~ tag-1] 整套右移一位
+		for (int tag1 = right; tag1 > point; tag1--) {
+			array[tag1] = array[tag1 - 1];
+		}
+		array[point] = t;
+
+	}
+
+	public static void shellSort(int[] array) {
+		sort.shellSort(array, 0, array.length - 1);
+	}
+	
+	private void shellSort(int[] array, int left, int right) {
+		
+	}
+
+	public static void mergeSort(int[] array) {
+		sort.mergeSort0(array);
+	}
+
+	private void mergeSort0(int[] array) {
+		int[] buffer = new int[8];
+		int bufLen = 0;
+		int piece = 2;
+		int len = array.length;
+		int temp;
+		/*
+		 * 初始化 先处理相邻2位
+		 * 双数长度
+		 * 	2 1 5 4 -> 1 2 4 5
+		 * 单数长度与前面一组合并   
+		 *  2 1 5 4 3 -> 1 2 4 5 3 -> 1 2 3 4 5
+		*/
+		for (int i = 1; i < len; i += 2) {
+			if (array[i] < array[i - 1]) {
+				temp = array[i];
+				array[i] = array[i - 1];
+				array[i - 1] = temp;
+			}
+		}
+		temp = array[len - 1];
+		if (temp < array[len - 2]) {
+			array[len - 1] = array[len - 2];
+			if (temp < array[len - 3]) {
+				array[len - 2] = array[len - 3];
+				array[len - 3] = temp;
+			} else {
+				array[len - 2] = temp;
+			}
+		}
+
+		// 开始分片处理
+		for (; piece < array.length; piece <<= 2) {
+			for (int i = 0, max = (array.length / piece); i < max; i++) {
+				/*
+				piece = 4:
+				1     2     3     4     5  6  7  8  9  10  11  12  13
+				-------------------     ----------  -------------  
+				start       tag         end
+				
+				*/
+				int start = i;
+				int tag = i + piece >> 1;
+				int end = i + piece;
+				// 当前片中排序
+				bufLen = 0;
+				
+				
+				
+			}
+			// TODO 收尾
+			
+		}
+	}
 	
 }
