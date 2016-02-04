@@ -5,6 +5,8 @@ public class Sort {
 
 	public static Sort sort = new Sort();
 	
+	public static final int INT_MIN = 0x80000000;
+	
 	/**
 	 * 递归快排
 	 */
@@ -225,7 +227,6 @@ public class Sort {
 
 	private void mergeSort0(int[] array) {
 		int[] buffer = new int[8];
-		int bufLen = 0;
 		int piece = 2;
 		int len = array.length;
 		int temp;
@@ -243,8 +244,8 @@ public class Sort {
 				array[i - 1] = temp;
 			}
 		}
-		temp = array[len - 1];
-		if (temp < array[len - 2]) {
+		;
+		if ((array.length & 1) == 1 && (temp = array[len - 1]) < array[len - 2]) {
 			array[len - 1] = array[len - 2];
 			if (temp < array[len - 3]) {
 				array[len - 2] = array[len - 3];
@@ -255,8 +256,12 @@ public class Sort {
 		}
 
 		// 开始分片处理
-		for (; piece < array.length; piece <<= 2) {
-			for (int i = 0, max = (array.length / piece); i < max; i++) {
+		for (piece <<= 1; piece < array.length; piece <<= 1) {
+			int start;
+			int tag;
+			int end;
+			int max = (array.length / piece);
+			for (int i = 0; i < max; i++) {
 				/*
 				piece = 4:
 				1     2     3     4     5  6  7  8  9  10  11  12  13
@@ -264,18 +269,196 @@ public class Sort {
 				start       tag         end
 				
 				*/
-				int start = i;
-				int tag = i + piece >> 1;
-				int end = i + piece;
-				// 当前片中排序
-				bufLen = 0;
+				start = i * piece;
+				tag = i * piece + (piece >> 1);
+				end = i * piece + piece;
+				/* 当前片中排序
+				 * merge i ~ i + piece>>1  与  i + piece>>1 ~ i + piece
+				 */
+				int bufIdx;
+				for (int bl = buffer.length; tag < end;) {
+					// 复制buffer
+					bufIdx = 0;
+					int point = tag;
+					/* 循环结束后
+					 * point 指向buffer元素在array中初始位置
+					 * tag 指向buffer元素后面第一个元素位置 即  point + bufLen + 1 
+					 * 
+					 * tag 指向未merge的片段的第一个位置
+					 * point 指向buffer在array中的第一个位置
+					 */
+					for (int bufMax = end - point < bl ? end - point : bl ;bufIdx < bufMax;) {
+						buffer[bufIdx++] = array[tag++];
+					}
+					
+					// merge i ~ point and point ~ tag
+					/*
+		 复制buffer循环结束后   
+		 piece = 32
+		 1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33 
+		 -------------------------------------------------------------------------------------------------------------------------
+		 start                                              t    point                      b   tag                             end
+					 */
+					/*
+					 * 对于上面的结构
+					 * point 24 -> 1 (当buffer中的数据提取结束时结束) 
+					 */
+					point = tag - 1;
+					bufIdx -= 1;
+					for (int b = buffer[bufIdx], t = array[point - bufIdx - 1]; bufIdx > -1; ) {
+						if (b >= t) {
+							// b 大 放buff中的最大值 
+							array[point--] = b;
+							bufIdx--;
+							if (bufIdx < 0) {
+								break;
+							}
+							b = buffer[bufIdx];
+						} else {
+							// t 大 放merge 片段中的最大值
+							array[point--] = t;
+							if (point - bufIdx - 1 < start) {
+								// merge片段已经处理结束 buffer中剩余的 
+								// 将buffer中剩余的放到merge片段最前面
+								for (int idx = 0; idx <= bufIdx; idx++) {
+									array[idx + start] = buffer[idx];
+								}
+								break;
+							}
+							t = array[point - bufIdx - 1];
+						}
+					}
 				
-				
-				
+				}
 			}
-			// TODO 收尾
+			/*
+			 1   2   3   4   5   6   7   8   9   10
+			 -------------   -------------   ------
+			                 [合并这2段 .             ]     
+			                 start           tag  end             
+			 */
+			if ((end = array.length) % piece != 0) {
+				start = (max - 1) * piece;
+				tag = start + piece;
+				int bufIdx;
+				for (int bl = buffer.length; tag < end;) {
+					// 复制buffer
+					bufIdx = 0;
+					int point = tag;
+					/* 循环结束后
+					 * point 指向buffer元素在array中初始位置
+					 * tag 指向buffer元素后面第一个元素位置 即  point + bufLen + 1 
+					 * 
+					 * tag 指向未merge的片段的第一个位置
+					 * point 指向buffer在array中的第一个位置
+					 */
+					for (int bufMax = end - point < bl ? end - point : bl ;bufIdx < bufMax;) {
+						buffer[bufIdx++] = array[tag++];
+					}
+					
+					// merge i ~ point and point ~ tag
+					/*
+		 复制buffer循环结束后   
+		 piece = 32
+		 1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33 
+		 -------------------------------------------------------------------------------------------------------------------------
+		 start                                              t    point                      b   tag                             end
+					 */
+					/*
+					 * 对于上面的结构
+					 * point 24 -> 1 (当buffer中的数据提取结束时结束) 
+					 */
+					point = tag - 1;
+					bufIdx -= 1;
+					for (int b = buffer[bufIdx], t = array[point - bufIdx - 1]; bufIdx > -1; ) {
+						if (b >= t) {
+							// b 大 放buff中的最大值 
+							array[point--] = b;
+							bufIdx--;
+							if (bufIdx < 0) {
+								break;
+							}
+							b = buffer[bufIdx];
+						} else {
+							// t 大 放merge 片段中的最大值
+							array[point--] = t;
+							if (point - bufIdx - 1 < start) {
+								// merge片段已经处理结束 buffer中剩余的 
+								// 将buffer中剩余的放到merge片段最前面
+								for (int idx = 0; idx <= bufIdx; idx++) {
+									array[idx + start] = buffer[idx];
+								}
+								break;
+							}
+							t = array[point - bufIdx - 1];
+						}
+					}
+				
+				}
+			}
+		}
+	}
+
+	private void merge(int[] array, int[] buffer, int start, int tag, int end) {
+		int bufIdx;
+		for (int bl = buffer.length; tag < end;) {
+			// 复制buffer
+			bufIdx = 0;
+			int point = tag;
+			/* 循环结束后
+			 * point 指向buffer元素在array中初始位置
+			 * tag 指向buffer元素后面第一个元素位置 即  point + bufLen + 1 
+			 * 
+			 * tag 指向未merge的片段的第一个位置
+			 * point 指向buffer在array中的第一个位置
+			 */
+			for (int bufMax = end - point < bl ? end - point : bl ;bufIdx < bufMax;) {
+				buffer[bufIdx++] = array[tag++];
+			}
 			
+			// merge i ~ point and point ~ tag
+			/*
+ 复制buffer循环结束后   
+ piece = 32
+ 1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33 
+ -------------------------------------------------------------------------------------------------------------------------
+ start                                              t    point                      b   tag                             end
+			 */
+			/*
+			 * 对于上面的结构
+			 * point 24 -> 1 (当buffer中的数据提取结束时结束) 
+			 */
+			point = tag - 1;
+			bufIdx -= 1;
+			for (int b = buffer[bufIdx], t = array[point - bufIdx - 1]; bufIdx > -1; ) {
+				if (b >= t) {
+					// b 大 放buff中的最大值 
+					array[point--] = b;
+					bufIdx--;
+					if (bufIdx < 0) {
+						break;
+					}
+					b = buffer[bufIdx];
+				} else {
+					// t 大 放merge 片段中的最大值
+					array[point--] = t;
+					if (point - bufIdx - 1 < start) {
+						// merge片段已经处理结束 buffer中剩余的 
+						// 将buffer中剩余的放到merge片段最前面
+						for (int idx = 0; idx <= bufIdx; idx++) {
+							array[idx + start] = buffer[idx];
+						}
+						break;
+					}
+					t = array[point - bufIdx - 1];
+				}
+			}
+		
 		}
 	}
 	
 }
+	
+	
+	
+ 

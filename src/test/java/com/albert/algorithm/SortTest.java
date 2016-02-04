@@ -46,25 +46,20 @@ public class SortTest {
 	
 	@Test
 	public void testQuickSortLoop() {
-		int base = 10000000;
+		int base = 100000;
 		int[] array = new int[base];
 //		int[] array2 = new int[base * 2];
-		for (int ii = 0; ii < 10; ii++) {
+		for (int ii = 0; ii < 100; ii++) {
 			Random random = new Random();
 			for(int i = 0; i < base; i++) {
 				int a = random.nextInt(2 * base);
-//				array[i] = a;
-				array[i] = base - i;
+				array[i] = a;
 			}
-			array[3000000] = 1001;
-			array[5000000] = 1002;
-			array[7000000] = 1003;
-			array[9000000] = 1004;
 //			System.out.println(Arrays.toString(array));
 			long t1 = System.currentTimeMillis();
 			Sort.quickSortLoop(array);
 //			DualPivotQuicksort.sort(array);
-			System.out.println("kuaipai_xunhuan:[" + base + "] " + (System.currentTimeMillis() - t1));
+			System.out.println("QuickSortLoop:[" + base + "] " + (System.currentTimeMillis() - t1));
 	//		System.out.println(Arrays.toString(array));
 		}
 	}
@@ -72,9 +67,9 @@ public class SortTest {
 	
 	@Test
 	public void testInsertSort() {
-		int base = 5;
+		int base = 100000;
 		int[] array = new int[base];
-		for (int ii = 0; ii < 10000; ii++) {
+		for (int ii = 0; ii < 100; ii++) {
 			Random random = new Random();
 			for(int i = 0; i < base; i++) {
 				int a = random.nextInt(2 * base);
@@ -86,29 +81,68 @@ public class SortTest {
 			long t1 = System.currentTimeMillis();
 			Sort.insertSort(array);
 			long t2 = System.currentTimeMillis();
+			System.out.println("Sort insert:[" + base + "] " + (t2 - t1));
 //			System.out.println(Arrays.toString(array));
 //			System.out.println("Sort insert:[" + base + "] " + (t2 - t1) + " Sorted: " + checkSorted(array));
-			if (!checkSorted(array)) {
-				System.out.println("Source: " + Arrays.toString(array2));
-				System.out.println("Target: " + Arrays.toString(array));
-			}
+//			if (!checkSorted(array)) {
+//				System.out.println("Source: " + Arrays.toString(array2));
+//				System.out.println("Target: " + Arrays.toString(array));
+//			}
 		}
 	}
 	
+	@Test
+	public void testMergeSort() {
+		int base = 100000;
+		int[] array = new int[base];
+		for (int ii = 0; ii < 100; ii++) {
+			Random random = new Random();
+			for(int i = 0; i < base; i++) {
+				int a = random.nextInt(2 * base);
+				array[i] = a;
+			}
+			int[] array2 = new int[base];
+			System.arraycopy(array, 0, array2, 0, base);
+//			System.out.println(Arrays.toString(array));
+			long t1 = System.currentTimeMillis();
+			Sort.mergeSort(array);
+			long t2 = System.currentTimeMillis();
+//			System.out.println(Arrays.toString(array));
+			System.out.println("Sort merge:[" + base + "] " + (t2 - t1));
+//			boolean isOK = checkSorted(array);
+//			System.out.println("Sort merge:[" + base + "] " + (t2 - t1) + " Sorted: " + isOK);
+//			if (!isOK) {
+//				System.out.println("Source: " + Arrays.toString(array2));
+//				System.out.println("Target: " + Arrays.toString(array));
+//			}
+		}
+	}
 	
 	@Test
 //	@Ignore
 	public void test0() {
-		int base = 3000;
+		int base = 101;
 		int[] array = new int[base];
-		for(int i = 0; i < base; i++) {
-			array[i] = i % 30;
+		for (int ii = 0; ii < 1; ii++) {
+//			Random random = new Random();
+			for(int i = 0; i < base; i++) {
+//				int a = random.nextInt(2 * base);
+				array[i] = base - i;
+			}
+			int[] array2 = new int[base];
+			System.arraycopy(array, 0, array2, 0, base);
+			System.out.println(Arrays.toString(array));
+			long t1 = System.currentTimeMillis();
+			Sort.mergeSort(array);
+			long t2 = System.currentTimeMillis();
+			System.out.println(Arrays.toString(array));
+			boolean isOK = checkSorted(array);
+			System.out.println("Sort merge:[" + base + "] " + (t2 - t1) + " Sorted: " + isOK);
+			if (!isOK) {
+				System.out.println("Source: " + Arrays.toString(array2));
+				System.out.println("Target: " + Arrays.toString(array));
+			}
 		}
-		System.out.println(Arrays.toString(array));
-		long t1 = System.currentTimeMillis();
-		DualPivotQuicksort.sort(array);
-		System.out.println("kuaipai_xunhuan:[" + base + "] " + (System.currentTimeMillis() - t1));
-		System.out.println(Arrays.toString(array));
 	}
 	
 	@Test
