@@ -222,11 +222,22 @@ public class Sort {
 	}
 
 	public static void mergeSort(int[] array) {
-		sort.mergeSort0(array);
+		int[] buffer = new int[1024];
+		mergeSort(array, buffer);
+	}
+	
+	/**
+	 * buffer越小 占用内存越小  
+	 * buffer比array小时，越接近array的长度，排序的速度越快
+	 * @param array 需要排序的数组
+	 * @param buffer 
+	 * 	
+	 */
+	public static void mergeSort(int[] array, int[] buffer) {
+		sort.mergeSort0(array, buffer);
 	}
 
-	private void mergeSort0(int[] array) {
-		int[] buffer = new int[8];
+	private void mergeSort0(int[] array, int[] buffer) {
 		int piece = 2;
 		int len = array.length;
 		int temp;
@@ -399,6 +410,72 @@ public class Sort {
 		}
 	}
 
+	private void mergeSort1(int[] array) {
+		int[] buffer = new int[1024];
+		int piece = 2;
+		int len = array.length;
+		int temp;
+		/*
+		 * 初始化 先处理相邻2位
+		 * 双数长度
+		 * 	2 1 5 4 -> 1 2 4 5
+		 * 单数长度与前面一组合并   
+		 *  2 1 5 4 3 -> 1 2 4 5 3 -> 1 2 3 4 5
+		 */
+		for (int i = 1; i < len; i += 2) {
+			if (array[i] < array[i - 1]) {
+				temp = array[i];
+				array[i] = array[i - 1];
+				array[i - 1] = temp;
+			}
+		}
+		;
+		if ((array.length & 1) == 1 && (temp = array[len - 1]) < array[len - 2]) {
+			array[len - 1] = array[len - 2];
+			if (temp < array[len - 3]) {
+				array[len - 2] = array[len - 3];
+				array[len - 3] = temp;
+			} else {
+				array[len - 2] = temp;
+			}
+		}
+		
+		// 开始分片处理
+		for (piece <<= 1; piece < array.length; piece <<= 1) {
+			int start;
+			int tag;
+			int end;
+			int max = (array.length / piece);
+			for (int i = 0; i < max; i++) {
+				/*
+				piece = 4:
+				1     2     3     4     5  6  7  8  9  10  11  12  13
+				-------------------     ----------  -------------  
+				start       tag         end
+				
+				 */
+				start = i * piece;
+				tag = i * piece + (piece >> 1);
+				end = i * piece + piece;
+				/* 当前片中排序
+				 * merge i ~ i + piece>>1  与  i + piece>>1 ~ i + piece
+				 */
+				merge(array, buffer, start, tag, end);
+			}
+			/*
+			 1   2   3   4   5   6   7   8   9   10
+			 -------------   -------------   ------
+			                 [合并这2段 .             ]     
+			                 start           tag  end             
+			 */
+			if ((end = array.length) % piece != 0) {
+				start = (max - 1) * piece;
+				tag = start + piece;
+				merge(array, buffer, start, tag, end);
+			}
+		}
+	}
+	
 	private void merge(int[] array, int[] buffer, int start, int tag, int end) {
 		int bufIdx;
 		for (int bl = buffer.length; tag < end;) {

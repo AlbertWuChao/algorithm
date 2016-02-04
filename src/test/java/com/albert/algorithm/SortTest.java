@@ -46,10 +46,10 @@ public class SortTest {
 	
 	@Test
 	public void testQuickSortLoop() {
-		int base = 100000;
+		int base = 10000000;
 		int[] array = new int[base];
 //		int[] array2 = new int[base * 2];
-		for (int ii = 0; ii < 100; ii++) {
+		for (int ii = 0; ii < 1000; ii++) {
 			Random random = new Random();
 			for(int i = 0; i < base; i++) {
 				int a = random.nextInt(2 * base);
@@ -93,19 +93,21 @@ public class SortTest {
 	
 	@Test
 	public void testMergeSort() {
-		int base = 100000;
+		int base = 10000000;
 		int[] array = new int[base];
-		for (int ii = 0; ii < 100; ii++) {
+		int[] buf = new int[1024 * 1024];
+		int[] buf2 = new int[1024 * 1024];
+		for (int ii = 0; ii < 1000; ii++) {
 			Random random = new Random();
 			for(int i = 0; i < base; i++) {
 				int a = random.nextInt(2 * base);
 				array[i] = a;
 			}
-			int[] array2 = new int[base];
-			System.arraycopy(array, 0, array2, 0, base);
+//			int[] array2 = new int[base];
+//			System.arraycopy(array, 0, array2, 0, base);
 //			System.out.println(Arrays.toString(array));
 			long t1 = System.currentTimeMillis();
-			Sort.mergeSort(array);
+			Sort.mergeSort(array, buf);
 			long t2 = System.currentTimeMillis();
 //			System.out.println(Arrays.toString(array));
 			System.out.println("Sort merge:[" + base + "] " + (t2 - t1));
@@ -148,17 +150,7 @@ public class SortTest {
 	@Test
 //	@Ignore
 	public void test1() {
-		long t1 = System.currentTimeMillis();
-		for (long i = 0; i++ < 10000000000L;) {
-			int ii = Integer.MAX_VALUE / 7;
-		}
-		System.out.println(System.currentTimeMillis() - t1);
-		t1 = System.currentTimeMillis();
-		for (long i = 0; i++ < 10000000000L;) {
-			int ii = Integer.MAX_VALUE >> 3 + Integer.MAX_VALUE >> 6 + 1;
-		}
-		System.out.println(System.currentTimeMillis() - t1);
-
+		System.out.println(log2(1000000));
 	}
 	
 	private int log2(long a) {
